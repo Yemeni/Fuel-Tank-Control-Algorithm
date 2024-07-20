@@ -1,3 +1,5 @@
+mod control_algorithm;
+
 use std::collections::HashMap;
 use std::ffi::c_char;
 use std::hash::Hash;
@@ -10,8 +12,6 @@ fn foo(left: &str, right: &str) -> bool{
 
     false
 }
-
-
 
 fn count(s: &str) -> HashMap<char, u8> {
     let mut counter: HashMap<char, u8> = HashMap::new();

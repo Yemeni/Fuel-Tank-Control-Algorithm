@@ -11,9 +11,17 @@ fn foo(left: &str, right: &str) -> bool{
     false
 }
 
-fn count(s: &str) -> HashMap<char, u8>{
-    let mut counter: () = HashMap::new();
 
+
+fn count(s: &str) -> HashMap<char, u8> {
+    let mut counter: HashMap<char, u8> = HashMap::new();
+
+    for c in s.chars() {
+        let count = counter.entry(c).or_insert(0);
+        *count += 1;
+    }
+
+    counter
 }
 
 #[cfg(test)]

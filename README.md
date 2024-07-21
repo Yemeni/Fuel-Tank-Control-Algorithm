@@ -8,7 +8,7 @@ The deadline for this assignment is the 29th of July. Because there will be more
 
 ## Submission
 
-Send the `src` and `tests` folder as a zip archive to sven.friedrich@dlr.de. **DO NOT INCLUDE THE `target` FOLDER.** One way of assuring that the assignment folder is as small as possible is to run `cargo clean` inside of it.
+Send the `src` and `tests` folder as a zip archive to the tutor. **DO NOT INCLUDE THE `target` FOLDER.** One way of assuring that the assignment folder is as small as possible is to run `cargo clean` inside of it.
 
 ## Development Environment
 

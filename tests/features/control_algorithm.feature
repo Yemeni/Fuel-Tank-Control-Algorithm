@@ -1,12 +1,13 @@
-Feature: Guess the word
+Feature: Fuel tank control algorithm
 
-  # The first example has two steps
-  Scenario: Maker starts a game
-    When the Maker starts a game
-    Then the Maker waits for a Breaker to join
+  Scenario: Preventing overflow
+    Given a fuel tank with a capacity of 100 liters
+    When the current fuel level is 90 liters
+    And 15 liters of fuel is added
+    Then the fuel tank should indicate an overflow warning
 
-  # The second example has three steps
-  Scenario: Breaker joins a game
-    Given the Maker has started a game with the word "silky"
-    When the Breaker joins the Maker's game
-    Then the Breaker must guess a word with 5 characters
+  Scenario: Normal operation
+    Given a fuel tank with a capacity of 100 liters
+    When the current fuel level is 50 liters
+    And 30 liters of fuel is added
+    Then the fuel tank should not indicate an overflow warning

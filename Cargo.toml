@@ -1,0 +1,19 @@
+[package]
+name = "fuel-control"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cucumber = "0.21"
+
+[dev-dependencies]
+cucumber = "0.21"
+futures = "0.3"
+
+[[test]]
+name = "control_algorithm"
+harness = false
+
+[[test]]
+name = "simulator"
+harness = false

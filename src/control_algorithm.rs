@@ -15,7 +15,7 @@ impl SimpleControlAlgorithm {
 
 impl ControlAlgorithm for SimpleControlAlgorithm {
     // THIS SHOULD BE IMPLEMENTED BY YOU
-    // 
+    //
     // Your algorithm should prevent the tank system from overflowing
     //
     // This function provides you with the `system` parameter

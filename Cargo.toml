@@ -4,10 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-cucumber = "0.21"
+cucumber = "0.19"
 
 [dev-dependencies]
-cucumber = "0.21"
+cucumber = "0.19"
 futures = "0.3"
 
 [[test]]

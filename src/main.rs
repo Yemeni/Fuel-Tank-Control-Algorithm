@@ -30,7 +30,9 @@ fn main() {
     let mut simulation = TankSimulation::new(50.0, 100.0);
     let mut algorithm = SimpleControlAlgorithm::new();
 
-    simulation.run_simulation(&mut algorithm, Duration::from_secs(60));
+
+    simulation.set_control_algorithm(algorithm);
+    simulation.advance(Duration::from_secs(60));
 
     println!("Final Left Tank Level: {}", simulation.level_left());
     println!("Final Right Tank Level: {}", simulation.level_right());

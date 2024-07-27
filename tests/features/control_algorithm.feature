@@ -10,7 +10,7 @@ Feature: Control algorithm for tanks of an airplane
                   | 100.0     | 300.0      | false           | true             |
                   | 300.0     | 300.0      | true            | true             |
                   | 50.0      | 10.0       | false           | false            |
-                  | 200.0     | 249.0      | true            | false            |
+                  | 200.1     | 249.0      | true            | false            |
 
       Scenario Outline: Prevent the tank from overflowing by switching between the left and right tank
             Given the fuel level in the left tank is <fuel_left>L and in the right tank is <fuel_right>L

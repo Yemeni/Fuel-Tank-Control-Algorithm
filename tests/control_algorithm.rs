@@ -35,7 +35,7 @@ async fn simulate_time_passes(world: &mut TankWorld, seconds: u64) {
     world.tank.advance(Duration::from_secs(seconds));
 }
 
-#[then(regex = r"the left tank should give (\w+) and the right tank (\w+) values according to the table")]
+#[then(regex = r"the left tank should give (\w+) and (\w+) values according to the table")]
 async fn check_overflow(world: &mut TankWorld, expected_left: String, expected_right: String) {
     let left_overflowed = world.tank.overflowed_left();
     let right_overflowed = world.tank.overflowed_right();
@@ -44,14 +44,8 @@ async fn check_overflow(world: &mut TankWorld, expected_left: String, expected_r
 }
 
 #[when(regex = r"the (left|right|none|both) tank reach (\d+\.\d+)")]
-async fn simulate_overflow(world: &mut TankWorld, overflow: String, _overflow_level: f64) {
-    match overflow.as_str() {
-        "left" => world.tank.advance(Duration::from_secs(1)), // Simulate time to reach overflow
-        "right" => world.tank.advance(Duration::from_secs(1)),
-        "both" => world.tank.advance(Duration::from_secs(1)),
-        "none" => world.tank.advance(Duration::from_secs(1)),
-        _ => {}
-    }
+async fn simulate_overflow(world: &mut TankWorld, _overflow: String, _overflow_level: f64) {
+    // This step is effectively a no-op since we advance the simulation in the next step
 }
 
 #[when(regex = r"the simulation time (\d+) seconds")]

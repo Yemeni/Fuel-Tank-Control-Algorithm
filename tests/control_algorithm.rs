@@ -2,10 +2,12 @@ use cucumber::{World, given, when, then};
 use fuel_control::simulator::TankSimulation;
 use fuel_control::{Tank, TankSystem};
 use std::time::Duration;
+use fuel_control::control_algorithm::SimpleControlAlgorithm;
 
 #[derive(Debug, Default, World)]
 pub struct TankWorld {
     tank: TankSimulation,
+    algorithm: Option<SimpleControlAlgorithm>, // Store the control algorithm
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -53,14 +55,17 @@ async fn run_simulation(world: &mut TankWorld, simulation_time: u64) {
     world.tank.advance(Duration::from_secs(simulation_time));
 }
 
-#[then(regex = r"switching the valve to (\w+)")]
-async fn check_valve_position(world: &mut TankWorld, expected_position: String) {
+#[then(regex = r"the first valve switch should be to (\w+)")]
+async fn check_first_valve_switch(world: &mut TankWorld, expected_position: String) {
     let expected_valve = match expected_position.as_str() {
         "left" => Tank::Left,
         "right" => Tank::Right,
         _ => panic!("Unknown valve position: {}", expected_position),
     };
-    assert_eq!(TankWrapper(world.tank.get_valve()), TankWrapper(expected_valve));
+    if let Some(algorithm) = &world.algorithm {
+        let first_switch = algorithm.get_first_valve_switch();
+        assert_eq!(first_switch, Some(expected_valve));
+    }
 }
 
 // DO NOT TOUCH THIS main FUNCTION

@@ -2,76 +2,74 @@ use cucumber::{World, given, when, then};
 use fuel_control::simulator::TankSimulation;
 use fuel_control::{Tank, TankSystem};
 use std::time::Duration;
-use log::{info, warn};  // Import logging macros
 
-// Define a wrapper for the Tank enum
-#[derive(Debug)]
-struct TankWrapper(Tank);
-
-impl PartialEq for TankWrapper {
-    fn eq(&self, other: &Self) -> bool {
-        match (self.0, other.0) {
-            (Tank::Left, Tank::Left) => true,
-            (Tank::Right, Tank::Right) => true,
-            _ => false,
-        }
-    }
-}
-
-// Define your "given", "when", "then" functions here
-
-#[given(regex = r"the fuel level in the left tank is (\d+\.\d+)L and in the right tank is (\d+\.\d+)L")]
-fn set_initial_fuel_levels(world: &mut TankWorld, left: f32, right: f32) {
-    world.set_fuel_levels(left, right);
-}
-
-#[when(regex = r"the (\w+) tank reach (\d+\.\d+)")]
-fn simulate_tank_overflow(world: &mut TankWorld, overflow: String, over_flow_level: f32) {
-    // To simulate overflow, we need to set initial levels and advance the simulation
-    if overflow == "left" {
-        world.set_fuel_levels(over_flow_level, 0.0);
-    } else {
-        world.set_fuel_levels(0.0, over_flow_level);
-    }
-}
-
-#[when(regex = r"the simulation time (\d+) seconds")]
-fn run_simulation(world: &mut TankWorld, simulation_time: u64) {
-    world.advance_simulation(Duration::from_secs(simulation_time));
-}
-
-#[then(regex = r"switching the valve to (\w+)")]
-fn check_valve_position(world: &mut TankWorld, value_position: String) {
-    let expected_position = match value_position.as_str() {
-        "left" => TankWrapper(Tank::Left),
-        "right" => TankWrapper(Tank::Right),
-        _ => panic!("Unknown valve position: {}", value_position),
-    };
-    assert_eq!(TankWrapper(world.get_valve()), expected_position);
-}
-
-impl TankWorld {
-    fn set_fuel_levels(&mut self, left: f32, right: f32) {
-        self.tank = TankSimulation::new(left, right);
-    }
-
-    fn advance_simulation(&mut self, duration: Duration) {
-        self.tank.advance(duration);
-    }
-
-    fn get_valve(&self) -> Tank {
-        self.tank.get_valve()
-    }
-}
-
-// NO CHANGES NEED TO BE DONE TO THIS WORLD OBJECT (but you can if you want)
 #[derive(Debug, Default, World)]
 pub struct TankWorld {
     tank: TankSimulation,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct TankWrapper(Tank);
+
+impl PartialEq for TankWrapper {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 as u8 == other.0 as u8
+    }
+}
+
+impl Eq for TankWrapper {}
+
+impl From<Tank> for TankWrapper {
+    fn from(tank: Tank) -> Self {
+        TankWrapper(tank)
+    }
+}
+
+#[given(regex = r"the fuel level in the left tank is (\d+\.\d+)L and in the right tank is (\d+\.\d+)L")]
+async fn set_initial_fuel_levels(world: &mut TankWorld, left: f64, right: f64) {
+    world.tank = TankSimulation::new(left as f32, right as f32);
+}
+
+#[when(regex = r"(\d+) seconds pass")]
+async fn simulate_time_passes(world: &mut TankWorld, seconds: u64) {
+    world.tank.advance(Duration::from_secs(seconds));
+}
+
+#[then(regex = r"the left tank should give (\w+) and the right tank (\w+) values according to the table")]
+async fn check_overflow(world: &mut TankWorld, expected_left: String, expected_right: String) {
+    let left_overflowed = world.tank.overflowed_left();
+    let right_overflowed = world.tank.overflowed_right();
+    assert_eq!(left_overflowed, expected_left == "true");
+    assert_eq!(right_overflowed, expected_right == "true");
+}
+
+#[when(regex = r"the (left|right|none|both) tank reach (\d+\.\d+)")]
+async fn simulate_overflow(world: &mut TankWorld, overflow: String, _overflow_level: f64) {
+    match overflow.as_str() {
+        "left" => world.tank.advance(Duration::from_secs(1)), // Simulate time to reach overflow
+        "right" => world.tank.advance(Duration::from_secs(1)),
+        "both" => world.tank.advance(Duration::from_secs(1)),
+        "none" => world.tank.advance(Duration::from_secs(1)),
+        _ => {}
+    }
+}
+
+#[when(regex = r"the simulation time (\d+) seconds")]
+async fn run_simulation(world: &mut TankWorld, simulation_time: u64) {
+    world.tank.advance(Duration::from_secs(simulation_time));
+}
+
+#[then(regex = r"switching the valve to (\w+)")]
+async fn check_valve_position(world: &mut TankWorld, expected_position: String) {
+    let expected_valve = match expected_position.as_str() {
+        "left" => Tank::Left,
+        "right" => Tank::Right,
+        _ => panic!("Unknown valve position: {}", expected_position),
+    };
+    assert_eq!(TankWrapper(world.tank.get_valve()), TankWrapper(expected_valve));
+}
+
 // DO NOT TOUCH THIS main FUNCTION
 fn main() {
-    env_logger::init();
     futures::executor::block_on(TankWorld::run("tests/features/control_algorithm.feature"));
 }

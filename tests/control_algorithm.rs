@@ -91,7 +91,7 @@ async fn run_simulation_fuel(world: &mut FuelTestWorld, simulation_time: u64) {
     world.tank.advance(Duration::from_secs(simulation_time));
 }
 
-#[then(regex = r"the expected total fuel left should be (\d+\.\d+)L")]
+#[then(regex = r"the expected total fuel left should be around (\d+\.\d+)L")]
 async fn check_expected_total_fuel_left_fuel(world: &mut FuelTestWorld, expected_fuel_left: f64) {
     let total_fuel_left = world.tank.level_left() + world.tank.level_right();
     // println!("Expected fuel left: {}, Actual fuel left: {}", expected_fuel_left, total_fuel_left);

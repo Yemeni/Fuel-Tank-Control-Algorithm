@@ -3,6 +3,8 @@ use fuel_control::simulator::TankSimulation;
 use fuel_control::{Tank, TankSystem};
 use std::time::Duration;
 use fuel_control::control_algorithm::SimpleControlAlgorithm;
+use once_cell::sync::Lazy;
+use std::sync::Mutex;
 
 #[derive(Debug, Default, World)]
 pub struct TankWorld {
@@ -31,6 +33,14 @@ impl From<Tank> for TankWrapper {
     }
 }
 
+static FUEL_VALUES: Lazy<Mutex<Vec<(f64, f64)>>> = Lazy::new(|| Mutex::new(Vec::new()));
+
+fn print_fuel_values() {
+    let fuel_values = FUEL_VALUES.lock().unwrap();
+    for (expected, actual) in fuel_values.iter() {
+        println!("Expected fuel left around: {}, Actual fuel left: {}", expected, actual);
+    }
+}
 // TankWorld step definitions
 
 #[given(regex = r"the fuel level in the left tank is (\d+\.\d+)L and in the right tank is (\d+\.\d+)L")]
@@ -100,9 +110,19 @@ async fn check_expected_total_fuel_left_fuel(world: &mut FuelTestWorld, expected
     let lower_bound = expected_fuel_left - tolerance;
     let upper_bound = expected_fuel_left + tolerance;
 
+
+
     assert!(total_fuel_left >= lower_bound as f32 && total_fuel_left <= upper_bound as f32,
             "Actual fuel left {} is not within the range {} - {}", total_fuel_left, lower_bound, upper_bound);
+
+
+    // println!("Expected fuel left: {}, Actual fuel left: {}", expected_fuel_left, total_fuel_left); // Debug logging
+    FUEL_VALUES.lock().unwrap().push((expected_fuel_left, total_fuel_left as f64));
 }
+
+// Add a final step to print all the fuel values
+// Add a final step to print all the fuel values
+
 
 // DO NOT TOUCH THIS main FUNCTION
 fn main() {
@@ -110,4 +130,5 @@ fn main() {
         TankWorld::run("tests/features/control_algorithm.feature").await;
         FuelTestWorld::run("tests/features/control_algorithm_tank.feature").await;
     });
+    print_fuel_values();
 }

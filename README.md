@@ -33,3 +33,8 @@ Send the `src` and `tests` folder as a zip archive to the tutor. **DO NOT INCLUD
 To run all tests, execute:
 ```sh
 cargo test
+
+
+To run control algorithm, execute:
+```sh
+cargo test --test control_algorithm

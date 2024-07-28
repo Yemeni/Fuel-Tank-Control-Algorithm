@@ -26,3 +26,5 @@ Feature: Control algorithm for tanks of an airplane
                   | 200.1     | 50.0       | left     | 0.1             | 130             | left               |
                   | 200.1     | 250.1      | both     | 0.2             | 160             | right              |
                   | 0.0       | 250.1      | right    | 0.1             | 260             | right              |
+
+

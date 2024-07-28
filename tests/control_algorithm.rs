@@ -10,6 +10,12 @@ pub struct TankWorld {
     algorithm: Option<SimpleControlAlgorithm>, // Store the control algorithm
 }
 
+#[derive(Debug, Default, World)]
+pub struct FuelTestWorld {
+    tank: TankSimulation,
+    algorithm: Option<SimpleControlAlgorithm>, // Store the control algorithm
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct TankWrapper(Tank);
 
@@ -24,6 +30,8 @@ impl From<Tank> for TankWrapper {
         TankWrapper(tank)
     }
 }
+
+// TankWorld step definitions
 
 #[given(regex = r"the fuel level in the left tank is (\d+\.\d+)L and in the right tank is (\d+\.\d+)L")]
 async fn set_initial_fuel_levels(world: &mut TankWorld, left: f64, right: f64) {
@@ -66,7 +74,40 @@ async fn check_first_valve_switch(world: &mut TankWorld, expected_position: Stri
     }
 }
 
+// FuelTestWorld step definitions
+
+#[given(regex = r"the fuel level in the left tank is (\d+\.\d+)L and in the right tank is (\d+\.\d+)L")]
+async fn set_initial_fuel_levels_fuel(world: &mut FuelTestWorld, left: f64, right: f64) {
+    world.tank = TankSimulation::new(left as f32, right as f32);
+    let algorithm = SimpleControlAlgorithm::new();
+    world.tank.set_control_algorithm(algorithm);
+    world.algorithm = Some(SimpleControlAlgorithm::new());
+    // println!("Set initial fuel levels: left = {}, right = {}", left, right);
+}
+
+#[when(regex = r"the simulation runs for (\d+) seconds")]
+async fn run_simulation_fuel(world: &mut FuelTestWorld, simulation_time: u64) {
+    // println!("Running simulation for {} seconds", simulation_time);
+    world.tank.advance(Duration::from_secs(simulation_time));
+}
+
+#[then(regex = r"the expected total fuel left should be (\d+\.\d+)L")]
+async fn check_expected_total_fuel_left_fuel(world: &mut FuelTestWorld, expected_fuel_left: f64) {
+    let total_fuel_left = world.tank.level_left() + world.tank.level_right();
+    // println!("Expected fuel left: {}, Actual fuel left: {}", expected_fuel_left, total_fuel_left);
+
+    let tolerance = 10.0;
+    let lower_bound = expected_fuel_left - tolerance;
+    let upper_bound = expected_fuel_left + tolerance;
+
+    assert!(total_fuel_left >= lower_bound as f32 && total_fuel_left <= upper_bound as f32,
+            "Actual fuel left {} is not within the range {} - {}", total_fuel_left, lower_bound, upper_bound);
+}
+
 // DO NOT TOUCH THIS main FUNCTION
 fn main() {
-    futures::executor::block_on(TankWorld::run("tests/features/control_algorithm.feature"));
+    futures::executor::block_on(async {
+        TankWorld::run("tests/features/control_algorithm.feature").await;
+        FuelTestWorld::run("tests/features/control_algorithm_tank.feature").await;
+    });
 }

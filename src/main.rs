@@ -30,12 +30,12 @@ impl ControlAlgorithm for SimpleControlAlgorithm {
         }
 
         if left_level > right_level + 10.0 {
-            println!("Switching to drain the Left tank.");
+            // println!("Switching to drain the Left tank.");
             self.last_switch = current_time;
             Tank::Left
         } else if right_level > left_level + 10.0{
 
-            println!("Switching to drain the Right tank.");
+            // println!("Switching to drain the Right tank.");
             self.last_switch = current_time;
             Tank::Right
         }else{
@@ -46,7 +46,7 @@ impl ControlAlgorithm for SimpleControlAlgorithm {
 }
 
 fn main() {
-    let mut simulation = TankSimulation::new(350.0, 300.0);
+    let mut simulation = TankSimulation::new(100.0, 100.0);
     let mut algorithm = SimpleControlAlgorithm::new();
 
     simulation.set_control_algorithm(algorithm);

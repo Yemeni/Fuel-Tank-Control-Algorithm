@@ -19,8 +19,6 @@ impl PartialEq for TankWrapper {
     }
 }
 
-impl Eq for TankWrapper {}
-
 impl From<Tank> for TankWrapper {
     fn from(tank: Tank) -> Self {
         TankWrapper(tank)
